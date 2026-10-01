@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.4.1
+
+- The C# analysis engine is now compiled with optimizations. Measured on a real 56-track album, the analysis
+  is 2.3x faster on all cores and 3x faster on a single thread; the results are unchanged.
+
 ## 2.4.0
 
 - The launcher, the PowerShell 7 downloader and the analyzer are now a single file, `Lossless-Analyzer.bat`.

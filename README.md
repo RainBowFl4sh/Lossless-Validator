@@ -16,6 +16,17 @@ Nothing is installed system-wide.
 > **Results are indications, not proof.** No program can prove that a file is truly lossless.
 > See [Limitations](#limitations).
 
+**Current version: 2.4.1** - see the [changelog](CHANGELOG.md).
+
+## What's new in 2.4.1
+
+- **About 2-3x faster.** The built-in analysis engine is now compiled with optimizations. On a real
+  56-track album the run time dropped from 25.1 s to 10.8 s on all cores, and from 152.2 s to 50.5 s on a
+  single thread.
+- **Same results.** The verdicts, scores and findings for those 56 files are unchanged.
+- Nothing else changed: same file, same menu, same parameters. Replace your old `Lossless-Analyzer.bat` with
+  the new one; your `tools` folder and settings keep working.
+
 ## Quick start
 
 1. Download `Lossless-Analyzer.bat` and put it in a folder of its own.
@@ -150,12 +161,26 @@ Output\                           reports and spectrograms (created on demand)
 `Lossless-Analyzer.bat` is a batch/PowerShell hybrid. `cmd` runs the first lines, finds or downloads
 PowerShell 7 and hands the same file over to it; PowerShell treats the batch part as a comment.
 
-The analysis engine is C# compiled at run time. It reads the PCM stream that ffmpeg decodes and computes the
-FFT, the statistics and the MD5 in one pass. Several files are analyzed in parallel, and CPU threads that are
-not needed for parallel files run the FFT of each file in parallel.
+The analysis engine is C# compiled at run time (with optimizations). It reads the PCM stream that ffmpeg
+decodes and computes the FFT, the statistics and the MD5 in one pass. Several files are analyzed in parallel,
+and CPU threads that are not needed for parallel files run the FFT of each file in parallel.
 
 Keep the file encoded as **UTF-8 without BOM** and with **CRLF** line endings when you edit it. The
 `.gitattributes` file in this repository stops Git from converting it.
+
+## Performance
+
+Measured with version 2.4.1 on an 8-core / 16-thread desktop CPU, FFT size 8192, mostly 44.1 and 48 kHz FLAC:
+
+- **Where the time goes:** the spectrum analysis (FFT) is the largest part of the CPU work, followed by the
+  per-sample statistics and the MD5. Decoding is cheap: ffmpeg decodes FLAC several thousand times faster
+  than real time.
+- **Typical speed:** a 56-track album takes about 11 s on all cores once the files are in the disk cache.
+- **Large collections on a hard disk:** reading the files usually takes longer than analyzing them. At about
+  100 MB/s a 125 GB collection needs roughly 20 minutes just to be read, so a faster CPU does not shorten
+  the run.
+- **No GPU support:** only the FFT could run on a GPU. It would add a vendor-specific dependency and break
+  the single-file design, and on a hard disk the drive is the limit anyway.
 
 ## Limitations
 

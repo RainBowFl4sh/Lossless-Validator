@@ -200,7 +200,7 @@ $ErrorActionPreference = 'Stop'
 if ($PSVersionTable.PSVersion.Major -lt 7) { throw 'PowerShell 7 or newer is required. Start the analyzer by running Lossless-Analyzer.bat.' }
 $ProgressPreference = 'SilentlyContinue'   # the built-in web/archive progress bars slow downloads down
 $AppName = 'LOSSLESS AUDIO AUTHENTICITY ANALYZER'
-$AppVersion = '2.4.0'
+$AppVersion = '2.4.1'
 try { [Console]::OutputEncoding = [Text.Encoding]::UTF8; $OutputEncoding = [Text.Encoding]::UTF8 } catch { }
 $esc = [char]27
 
@@ -2144,8 +2144,8 @@ function Start-Analysis {
 
     if (@($files | Where-Object { $_.Extension -ieq '.flac' }).Count -gt 0) { Confirm-FlacTool }
 
-    # --- C# engine ---
-    if (-not ('FlacTools.AudioAnalyzer' -as [type])) { Add-Type -TypeDefinition $csharp -Language CSharp }
+    # --- C# engine (Add-Type compiles without optimizations by default; -optimize+ makes the FFT about 4x faster) ---
+    if (-not ('FlacTools.AudioAnalyzer' -as [type])) { Add-Type -TypeDefinition $csharp -Language CSharp -CompilerOptions '-optimize+' }
 
     # --- workers ---
     if (-not $script:Sys) { $script:Sys = Get-SystemInfo }
